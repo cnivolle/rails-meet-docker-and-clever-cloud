@@ -1,6 +1,10 @@
 # -*- sh -*-
 FROM fcat/ubuntu-universe:12.04
 
+#Datadog
+RUN echo '==> Datadog Repo <==='
+RUN mount | grep "cgroup type tmpfs"
+
 # development tools
 RUN apt-get -qy install git vim tmux
 
@@ -16,8 +20,7 @@ RUN adduser --disabled-password --home=/rails --gecos "" rails
 
 
 
-#Datadog
-RUN -d --name dd-agent -h `hostname` -v /var/run/docker.sock:/var/run/docker.sock -v /proc/:/host/proc/:ro -v /sys/fs/cgroup/:/host/sys/fs/cgroup:ro -e API_KEY=64b9c0afcea4940746506697bd9849f4 datadog/docker-dd-agent:latest
+
 
 # copy the Rails app
 # we assume we have cloned the "docrails" repository locally
