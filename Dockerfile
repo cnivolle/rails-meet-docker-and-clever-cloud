@@ -1,6 +1,8 @@
 # -*- sh -*-
 FROM fcat/ubuntu-universe:12.04
 
+RUN apt-get -qy install curl
+
 #Datadog
 RUN echo "<<=== Start DD install ===>>"
 RUN DD_API_KEY=64b9c0afcea4940746506697bd9849f4 sh -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/setup_agent.sh)"
