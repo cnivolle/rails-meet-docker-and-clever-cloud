@@ -1,45 +1,28 @@
-# -*- sh -*-
-FROM fcat/ubuntu-universe:12.04
+# rust tooling is provided by `archlinux-rust`
+FROM geal/archlinux-rust
+MAINTAINER Geoffroy Couprie, contact@geoffroycouprie.com
 
-RUN apt-get -qy install curl
+# needed by rust
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+
+# relevant files are in `./source`
+ADD . /source
+WORKDIR /source
+
+# Clever Cloud expects your app to listen on port 8080
+EXPOSE 8080
 
 #Datadog
 RUN echo "<<=== Start DD install ===>>"
 RUN DD_API_KEY=64b9c0afcea4940746506697bd9849f4 sh -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/setup_agent.sh)"
 RUN echo "<<=== END install ===>>"
 
-# development tools
-RUN apt-get -qy install git vim tmux
+RUN rustc -V
 
-# ruby 1.9.3 and build dependencies
-RUN apt-get -qy install ruby1.9.1 ruby1.9.1-dev build-essential libpq-dev libv8-dev libsqlite3-dev
+# Build your application
+RUN cargo build
 
-# bundler
-RUN gem install bundler
-
-# create a "rails" user
-# the Rails application will live in the /rails directory
-RUN adduser --disabled-password --home=/rails --gecos "" rails
-
-
-
-
-
-# copy the Rails app
-# we assume we have cloned the "docrails" repository locally
-#  and it is clean; see the "prepare" script
-ADD rails /rails
-
-RUN chown rails -R /rails
-
-# copy and execute the setup script
-# this will run bundler, setup the database, etc.
-ADD scripts/setup /setup
-RUN su rails -c /setup
-
-# copy the start script
-ADD scripts/start /start
-
-EXPOSE 8080
-USER rails
+# Run the application with `CMD`
+CMD cargo run
 CMD /start
+
